@@ -1,1 +1,7 @@
+.vscode
 jboss-eap-7.0.0.zip
+demo-be-rs/target
+demo-be-rs/bin
+demo-be-rs/.project
+demo-be-rs/.classpath
+demo-be-rs/.settings
