@@ -1,11 +1,13 @@
 # Install JBoss AS
 FROM jboss/base-jdk:8 as JBOSS
-ENV JBOSS_VERSION 7.0.0
-ENV JBOSS_HOME /opt/jboss/jboss-eap-7.0/
-COPY jboss-eap-$JBOSS_VERSION.zip $HOME
+ENV WILDFLY_VERSION 9.0.2.Final
+ENV JBOSS_HOME /opt/jboss/wildfly
 RUN cd $HOME \
-    && unzip jboss-eap-$JBOSS_VERSION.zip \
-    && rm jboss-eap-$JBOSS_VERSION.zip
+    && curl -O https://download.jboss.org/wildfly/$WILDFLY_VERSION/wildfly-$WILDFLY_VERSION.tar.gz \
+    && tar xz -f wildfly-$WILDFLY_VERSION.tar.gz \
+    && mkdir -p /opt/jboss \
+    && mv $HOME/wildfly-$WILDFLY_VERSION $JBOSS_HOME \
+    && rm wildfly-$WILDFLY_VERSION.tar.gz
 ENV LAUNCH_JBOSS_IN_BACKGROUND true
 USER jboss
 EXPOSE 8080
@@ -23,10 +25,9 @@ WORKDIR /app
 COPY --from=JAVA /src /app
 RUN mvn package
 COPY --from=JBOSS /opt/jboss /opt/jboss
-RUN ls -l /opt
 
 # Deploy WAR
-RUN cp target/restbe.war /opt/jboss/jboss-eap-7.0/standalone/deployments/
+RUN cp target/restbe.war /opt/jboss/wildfly/standalone/deployments/
 
 # Start JBoss AS
-CMD ["/opt/jboss/jboss-eap-7.0/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]
+CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]
